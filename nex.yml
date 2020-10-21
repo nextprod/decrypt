@@ -1,0 +1,5 @@
+runs:
+  image: node:12.19-stretch
+  command:
+    - node
+    - dist/index.js

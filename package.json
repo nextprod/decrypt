@@ -1,0 +1,17 @@
+{
+  "name": "ts-example",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc && ncc build dist -o dist"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^14.11.10",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@types/yargs": "^15.0.9",
+    "yargs": "^16.1.0"
+  }
+}
