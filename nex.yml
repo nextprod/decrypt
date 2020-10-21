@@ -9,5 +9,6 @@ runs:
       - secrets
     properties:
       secrets:
-        type: object
-        additionalProperties: true
+        type: array
+        items:
+          type: string
