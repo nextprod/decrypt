@@ -6,9 +6,9 @@ runs:
   schema:
     type: object
     required:
-      - secrets
+      - decrypt
     properties:
-      secrets:
+      decrypt:
         type: array
         items:
           type: string
