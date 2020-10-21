@@ -3,3 +3,11 @@ runs:
   command:
     - node
     - dist/index.js
+  schema:
+    type: object
+    required:
+      - secrets
+    properties:
+      secrets:
+        type: object
+        additionalProperties: true
