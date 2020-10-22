@@ -35,8 +35,11 @@ function main(args) {
             process.exit(1);
         }
         const ssm = new ssm_1.default({ region: 'eu-west-1' });
-        const decrypt = ['TOKEN'];
-        const secrets = yield decrypt.reduce((memo, name) => __awaiter(this, void 0, void 0, function* () {
+        const params = {
+            decrypt: ['TOKEN'],
+            path: './secrets.json',
+        };
+        const secrets = yield params.decrypt.reduce((memo, name) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
                 const secretPath = process.env[name];
@@ -57,7 +60,7 @@ function main(args) {
             }
         }), {});
         try {
-            const filepath = path_1.default.resolve(workspace + '/../.secrets/secrets.json');
+            const filepath = path_1.default.resolve(path_1.default.join(workspace, params.path));
             // Create directory.
             yield promise_fs_1.default.mkdir(path_1.default.dirname(filepath));
             // Add some output.

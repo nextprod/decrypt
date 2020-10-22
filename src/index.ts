@@ -13,9 +13,11 @@ async function main(args: any) {
     process.exit(1)
   }
   const ssm: SSM = new SSM({ region: 'eu-west-1' })
-  const decrypt = ['TOKEN']
-
-  const secrets = await decrypt.reduce(async (memo, name: string) => {
+  const params = {
+    decrypt: ['TOKEN'],
+    path: './secrets.json',
+  }
+  const secrets = await params.decrypt.reduce(async (memo, name: string) => {
     try {
       const secretPath = process.env[name]
       if (!secretPath) {
@@ -34,7 +36,7 @@ async function main(args: any) {
     }
   }, {})
   try {
-    const filepath = path.resolve(workspace + '/../.secrets/secrets.json')
+    const filepath = path.resolve(path.join(workspace, params.path))
     // Create directory.
     await fs.mkdir(path.dirname(filepath))
     // Add some output.
