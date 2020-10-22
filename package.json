@@ -12,8 +12,10 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/promise-fs": "^2.1.1",
     "@types/yargs": "^15.0.9",
     "aws-sdk": "^2.775.0",
+    "path": "^0.12.7",
     "promise-fs": "^2.1.1",
     "yargs": "^16.1.0"
   }

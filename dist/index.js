@@ -22,25 +22,51 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const yargs_1 = __importDefault(__webpack_require__(2972));
 const promise_fs_1 = __importDefault(__webpack_require__(6244));
+const path_1 = __importDefault(__webpack_require__(5622));
 const ssm_1 = __importDefault(__webpack_require__(2766));
 // main is main function which is started by the runner during
 // step execution.
 function main(args) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const ssm = new ssm_1.default({ region: 'eu-west-1' });
-        const options = {
-            Name: '/builds/secrets/token',
-            WithDecryption: true
-        };
-        try {
-            const data = yield ssm.getParameter(options).promise();
-            const secrets = {};
-            secrets.TOKEN = (_a = data.Parameter) === null || _a === void 0 ? void 0 : _a.Value;
-            yield promise_fs_1.default.writeFile("./secrets.json", JSON.stringify(secrets));
+        const env = process.env;
+        const workspace = env.NEX_WORKSPACE;
+        if (!workspace || workspace === "") {
+            console.log("workspace was not set");
+            process.exit(1);
         }
-        catch (_b) {
-            console.log("error: unable to decrypt parameter");
+        const ssm = new ssm_1.default({ region: 'eu-west-1' });
+        const decrypt = ['TOKEN', 'TOKEN2'];
+        const secrets = yield decrypt.reduce((memo, name) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const secretPath = process.env[name];
+            if (!secretPath) {
+                throw new Error("env variable not found");
+            }
+            const options = {
+                Name: secretPath,
+                WithDecryption: true
+            };
+            try {
+                const data = yield ssm.getParameter(options).promise();
+                // Set secret.
+                return Object.assign(Object.assign({}, (yield memo)), { [name]: (_a = data.Parameter) === null || _a === void 0 ? void 0 : _a.Value });
+            }
+            catch (err) {
+                console.log("error: cannot decrypt %s: %s", name, err);
+                process.exit(1);
+            }
+        }), {});
+        try {
+            const filepath = path_1.default.resolve(workspace + '/../.secrets/secrets.json');
+            // Create directory.
+            yield promise_fs_1.default.mkdir(path_1.default.dirname(filepath));
+            // Add some output.
+            console.log('writing secrets to %s', filepath);
+            // Write secrets to json file.
+            yield promise_fs_1.default.writeFile(filepath, JSON.stringify(secrets));
+        }
+        catch (err) {
+            console.log(err);
             process.exit(1);
         }
     });
