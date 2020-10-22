@@ -37,8 +37,12 @@ async function main(args: any) {
   }, {})
   try {
     const filepath = path.resolve(path.join(workspace, params.path))
-    // Create directory.
-    await fs.mkdir(path.dirname(filepath))
+    // By default it's path to workspace
+    const dir = path.dirname(filepath)
+    if (!fs.existsSync(dir)) {
+      // Create directory.
+      await fs.mkdir(dir)
+    }
     // Add some output.
     console.log('writing secrets to %s', filepath)
     // Write secrets to json file.

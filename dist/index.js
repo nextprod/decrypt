@@ -61,8 +61,12 @@ function main(args) {
         }), {});
         try {
             const filepath = path_1.default.resolve(path_1.default.join(workspace, params.path));
-            // Create directory.
-            yield promise_fs_1.default.mkdir(path_1.default.dirname(filepath));
+            // By default it's path to workspace
+            const dir = path_1.default.dirname(filepath);
+            if (!(yield promise_fs_1.default.existsSync(dir))) {
+                // Create directory.
+                yield promise_fs_1.default.mkdir(dir);
+            }
             // Add some output.
             console.log('writing secrets to %s', filepath);
             // Write secrets to json file.
