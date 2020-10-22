@@ -16,15 +16,15 @@ async function main(args: any) {
   const decrypt = ['TOKEN']
 
   const secrets = await decrypt.reduce(async (memo, name: string) => {
-    const secretPath = process.env[name]
-    if (!secretPath) {
-      throw new Error("env variable not found")
-    }
-    const options = {
-      Name: secretPath,
-      WithDecryption: true
-    }
     try {
+      const secretPath = process.env[name]
+      if (!secretPath) {
+        throw new Error("env variable not found")
+      }
+      const options = {
+        Name: secretPath,
+        WithDecryption: true
+      }
       const data = await ssm.getParameter(options).promise()
       // Set secret.
       return { ...(await memo), [name]: data.Parameter?.Value }

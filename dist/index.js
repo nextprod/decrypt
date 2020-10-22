@@ -35,18 +35,18 @@ function main(args) {
             process.exit(1);
         }
         const ssm = new ssm_1.default({ region: 'eu-west-1' });
-        const decrypt = ['TOKEN', 'TOKEN2'];
+        const decrypt = ['TOKEN'];
         const secrets = yield decrypt.reduce((memo, name) => __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const secretPath = process.env[name];
-            if (!secretPath) {
-                throw new Error("env variable not found");
-            }
-            const options = {
-                Name: secretPath,
-                WithDecryption: true
-            };
             try {
+                const secretPath = process.env[name];
+                if (!secretPath) {
+                    throw new Error("env variable not found");
+                }
+                const options = {
+                    Name: secretPath,
+                    WithDecryption: true
+                };
                 const data = yield ssm.getParameter(options).promise();
                 // Set secret.
                 return Object.assign(Object.assign({}, (yield memo)), { [name]: (_a = data.Parameter) === null || _a === void 0 ? void 0 : _a.Value });
