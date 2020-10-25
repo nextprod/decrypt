@@ -1,14 +1,15 @@
+parameters:
+  type: object
+  required:
+    - decrypt
+  properties:
+    decrypt:
+      type: array
+      items:
+        type: string
+
 runs:
   image: node:12.19-stretch
   command:
     - node
     - dist/index.js
-  schema:
-    type: object
-    required:
-      - decrypt
-    properties:
-      decrypt:
-        type: array
-        items:
-          type: string
