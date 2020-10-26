@@ -1,4 +1,3 @@
-import yargs from 'yargs';
 import fs from 'promise-fs';
 import path from 'path';
 import SSM from 'aws-sdk/clients/ssm';
