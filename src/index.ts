@@ -5,7 +5,8 @@ import SSM from 'aws-sdk/clients/ssm';
 
 // main is main function which is started by the runner during
 // step execution.
-async function main(args: any) {
+export async function run(args: any) {
+  console.log("Received args: %s", args)
   const env = process.env
   const workspace = env.NEX_WORKSPACE
   if (!workspace || workspace === "") {
@@ -52,6 +53,3 @@ async function main(args: any) {
     process.exit(1)
   }
 }
-
-// start main
-main(yargs(process.argv).argv)
