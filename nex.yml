@@ -9,6 +9,7 @@ parameters:
         type: string
 
 runs:
+  runtime: nodejs-12.x
   image: node:12.19-stretch
   command:
     - node
