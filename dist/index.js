@@ -26,23 +26,22 @@ const path_1 = __importDefault(__webpack_require__(5622));
 const ssm_1 = __importDefault(__webpack_require__(2766));
 // main is main function which is started by the runner during
 // step execution.
-function run(args) {
+function run(event) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("Received args: %s", args);
         const env = process.env;
+        const parameters = event.parameters;
         const workspace = env.NEX_WORKSPACE;
         if (!workspace || workspace === "") {
-            console.log("workspace was not set");
-            process.exit(1);
+            return new Error("workspace was not set");
         }
-        const ssm = new ssm_1.default({ region: 'eu-west-1' });
+        const ssm = new ssm_1.default({ region: parameters.region || 'eu-west-1' });
         const params = {
-            decrypt: ['TOKEN'],
-            path: './secrets.json',
+            decrypt: event.parameters.decrypt,
+            path: event.parameters.path || './secrets.json',
         };
-        const secrets = yield params.decrypt.reduce((memo, name) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            try {
+        try {
+            const secrets = yield params.decrypt.reduce((memo, name) => __awaiter(this, void 0, void 0, function* () {
+                var _a;
                 const secretPath = process.env[name];
                 if (!secretPath) {
                     throw new Error("env variable not found");
@@ -54,13 +53,7 @@ function run(args) {
                 const data = yield ssm.getParameter(options).promise();
                 // Set secret.
                 return Object.assign(Object.assign({}, (yield memo)), { [name]: (_a = data.Parameter) === null || _a === void 0 ? void 0 : _a.Value });
-            }
-            catch (err) {
-                console.log("error: cannot decrypt %s: %s", name, err);
-                process.exit(1);
-            }
-        }), {});
-        try {
+            }), {});
             const filepath = path_1.default.resolve(path_1.default.join(workspace, params.path));
             // By default it's path to workspace
             const dir = path_1.default.dirname(filepath);
@@ -74,8 +67,7 @@ function run(args) {
             yield promise_fs_1.default.writeFile(filepath, JSON.stringify(secrets));
         }
         catch (err) {
-            console.log(err);
-            process.exit(1);
+            return err;
         }
     });
 }

@@ -2,23 +2,31 @@ import fs from 'promise-fs';
 import path from 'path';
 import SSM from 'aws-sdk/clients/ssm';
 
+// Event represents extension event.
+type Event = {
+  parameters: {
+    region: string,
+    decrypt: Array<string>,
+    path: string,
+  }
+}
+
 // main is main function which is started by the runner during
 // step execution.
-export async function run(args: any) {
-  console.log("Received args: %s", args)
+export async function run(event: Event) {
   const env = process.env
+  const parameters = event.parameters;
   const workspace = env.NEX_WORKSPACE
   if (!workspace || workspace === "") {
-    console.log("workspace was not set")
-    process.exit(1)
+    return new Error("workspace was not set")
   }
-  const ssm: SSM = new SSM({ region: 'eu-west-1' })
+  const ssm: SSM = new SSM({ region: parameters.region || 'eu-west-1' })
   const params = {
-    decrypt: ['TOKEN'],
-    path: './secrets.json',
+    decrypt: event.parameters.decrypt,
+    path: event.parameters.path || './secrets.json',
   }
-  const secrets = await params.decrypt.reduce(async (memo, name: string) => {
-    try {
+  try {
+    const secrets = await params.decrypt.reduce(async (memo, name: string) => {
       const secretPath = process.env[name]
       if (!secretPath) {
         throw new Error("env variable not found")
@@ -30,12 +38,7 @@ export async function run(args: any) {
       const data = await ssm.getParameter(options).promise()
       // Set secret.
       return { ...(await memo), [name]: data.Parameter?.Value }
-    } catch (err) {
-      console.log("error: cannot decrypt %s: %s", name, err)
-      process.exit(1)
-    }
-  }, {})
-  try {
+    }, {})
     const filepath = path.resolve(path.join(workspace, params.path))
     // By default it's path to workspace
     const dir = path.dirname(filepath)
@@ -48,7 +51,6 @@ export async function run(args: any) {
     // Write secrets to json file.
     await fs.writeFile(filepath, JSON.stringify(secrets))
   } catch (err) {
-    console.log(err)
-    process.exit(1)
+    return err
   }
 }
