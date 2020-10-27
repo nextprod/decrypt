@@ -39,7 +39,6 @@ export async function run(event: Event) {
       return { ...(await memo), [name]: data.Parameter?.Value }
     }, {})
     const filepath = _path.resolve(_path.join(outputDir, params.path))
-    console.log(filepath)
     // By default it's path to workspace
     const dir = _path.dirname(filepath)
     if (!fs.existsSync(dir)) {

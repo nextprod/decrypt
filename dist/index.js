@@ -24,20 +24,18 @@ exports.run = void 0;
 const promise_fs_1 = __importDefault(__webpack_require__(6244));
 const path_1 = __importDefault(__webpack_require__(5622));
 const ssm_1 = __importDefault(__webpack_require__(2766));
+const outputDir = process.env.NEX_STEP_OUTPUT_DIR || __dirname;
 // main is main function which is started by the runner during
 // step execution.
 function run(event) {
     return __awaiter(this, void 0, void 0, function* () {
-        const env = process.env;
-        const parameters = event.parameters;
-        const workspace = env.NEX_WORKSPACE;
-        if (!workspace || workspace === "") {
-            return new Error("workspace was not set");
-        }
-        const ssm = new ssm_1.default({ region: parameters.region || 'eu-west-1' });
+        // Deconstruct parameters.
+        const { region, decrypt, path } = event.parameters;
+        // Setup ssm and prepare parameters.
+        const ssm = new ssm_1.default({ region: region || 'eu-west-1' });
         const params = {
-            decrypt: event.parameters.decrypt,
-            path: event.parameters.path || './secrets.json',
+            decrypt,
+            path: path || './secrets.json',
         };
         try {
             const secrets = yield params.decrypt.reduce((memo, name) => __awaiter(this, void 0, void 0, function* () {
@@ -54,7 +52,7 @@ function run(event) {
                 // Set secret.
                 return Object.assign(Object.assign({}, (yield memo)), { [name]: (_a = data.Parameter) === null || _a === void 0 ? void 0 : _a.Value });
             }), {});
-            const filepath = path_1.default.resolve(path_1.default.join(workspace, params.path));
+            const filepath = path_1.default.resolve(path_1.default.join(outputDir, params.path));
             // By default it's path to workspace
             const dir = path_1.default.dirname(filepath);
             if (!promise_fs_1.default.existsSync(dir)) {
