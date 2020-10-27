@@ -49,8 +49,8 @@ function run(event) {
                     WithDecryption: true
                 };
                 const data = yield ssm.getParameter(options).promise();
-                // Set secret.
-                return Object.assign(Object.assign({}, (yield memo)), { [name]: (_a = data.Parameter) === null || _a === void 0 ? void 0 : _a.Value });
+                // Encode with base64 and set the secret.
+                return Object.assign(Object.assign({}, (yield memo)), { [name]: Buffer.from(((_a = data.Parameter) === null || _a === void 0 ? void 0 : _a.Value) || '').toString('base64') });
             }), {});
             const filepath = path_1.default.resolve(path_1.default.join(outputDir, params.path));
             // By default it's path to workspace

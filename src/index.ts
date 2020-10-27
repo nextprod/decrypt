@@ -35,8 +35,8 @@ export async function run(event: Event) {
         WithDecryption: true
       }
       const data = await ssm.getParameter(options).promise()
-      // Set secret.
-      return { ...(await memo), [name]: data.Parameter?.Value }
+      // Encode with base64 and set the secret.
+      return { ...(await memo), [name]: Buffer.from(data.Parameter?.Value || '').toString('base64') }
     }, {})
     const filepath = _path.resolve(_path.join(outputDir, params.path))
     // By default it's path to workspace
