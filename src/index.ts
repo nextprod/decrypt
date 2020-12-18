@@ -50,6 +50,6 @@ export async function run(event: Event) {
     // Write secrets to json file.
     await fs.writeFile(filepath, JSON.stringify(secrets))
   } catch (err) {
-    return err
+    console.log(err)
   }
 }
